@@ -1,25 +1,64 @@
 import { A } from "@solidjs/router";
 
-export default function NotFound() {
+import { Button } from "@/components/ui/button";
+import { InlineCode } from "@/components/ui/typography";
+import { ArrowLeftIcon } from "lucide-solid";
+import { type ParentProps, Show, createMemo } from "solid-js";
+import { type RequestEvent, getRequestEvent } from "solid-js/web";
+
+export default function NotFoundPage() {
+  /**
+   * Memoized computation of the error status from the request event response.
+   *
+   * @returns An object containing the status and statusText if the status is between 400 and 599, otherwise undefined.
+   */
+  const errorStatus = createMemo<
+    Omit<RequestEvent["response"], "headers"> | undefined
+  >(() => {
+    const response = getRequestEvent()?.response;
+    if (response) {
+      const { status = 500, statusText = "Something went wrong" } = response;
+      return status >= 400 && status < 600 ? { status, statusText } : undefined;
+    }
+  });
+
   return (
-    <main class="text-center mx-auto text-gray-700 p-4">
-      <h1 class="max-6-xs text-6xl text-sky-700 font-thin uppercase my-16">Not Found</h1>
-      <p class="mt-8">
-        Visit{" "}
-        <a href="https://solidjs.com" target="_blank" class="text-sky-600 hover:underline">
-          solidjs.com
-        </a>{" "}
-        to learn how to build Solid apps.
-      </p>
-      <p class="my-4">
-        <A href="/" class="text-sky-600 hover:underline">
-          Home
-        </A>
-        {" - "}
-        <A href="/about" class="text-sky-600 hover:underline">
-          About Page
-        </A>
-      </p>
-    </main>
+    <div class="flex h-full flex-col items-center justify-center space-y-6 p-4 text-center">
+      <Show
+        when={errorStatus()}
+        fallback={
+          <StatusText status="500">Something went wrong. Boop.</StatusText>
+        }
+      >
+        {(error) => (
+          <StatusText status={error().status?.toString() ?? "500"}>
+            {error().statusText}
+          </StatusText>
+        )}
+      </Show>
+      <Button as={A} href="/" variant="default" class="mt-4">
+        <ArrowLeftIcon class="mr-2 h-4 w-4" />
+        Go to home
+      </Button>
+    </div>
+  );
+}
+
+function StatusText(
+  props: ParentProps<{
+    status: string;
+  }>,
+) {
+  return (
+    <>
+      <h1 class="font-bold text-4xl sm:text-6xl">{props.status}</h1>
+      <Show when={props.children}>
+        {(statusText) => (
+          <InlineCode class="mx-auto max-w-xl text-muted-foreground">
+            {JSON.stringify(statusText(), null, 2)}
+          </InlineCode>
+        )}
+      </Show>
+    </>
   );
 }
