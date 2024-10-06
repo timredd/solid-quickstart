@@ -30,7 +30,7 @@ const extractEnvErrors = <T extends v.GenericSchema>(err: unknown) => {
  * @param schema - Configuration schema.
  * @param env - Environment variables, defaults to `process.env`.
  */
-export const parseEnv = <T extends v.GenericSchema>(
+export const parse = <T extends v.GenericSchema>(
   schema: T,
   env: ImportMetaEnv | NodeJS.ProcessEnv,
   options?: { strict: boolean },
