@@ -57,5 +57,10 @@
     "solid-devtools": "^0.30.1",
     "tsx": "^4.19.1",
     "wrangler": "^3.79.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "drizzle-valibot@0.2.0": "patches/drizzle-valibot@0.2.0.patch"
+    }
   }
 }
