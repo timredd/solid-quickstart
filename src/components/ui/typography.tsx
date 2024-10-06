@@ -11,7 +11,7 @@ export type AsProp<T extends ValidComponent> = Omit<
   DynamicProps<T, ComponentProps<T>>,
   "component"
 > & {
-  as: DynamicProps<T, ComponentProps<T>>["component"];
+  as?: DynamicProps<T, ComponentProps<T>>["component"];
 };
 
 export type TypographyProps<T extends ValidComponent> = FlowProps<AsProp<T>> & {
