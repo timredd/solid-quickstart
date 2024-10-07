@@ -7,11 +7,6 @@ import { type ParentProps, Show, createMemo } from "solid-js";
 import { type RequestEvent, getRequestEvent } from "solid-js/web";
 
 export default function NotFoundPage() {
-  /**
-   * Memoized computation of the error status from the request event response.
-   *
-   * @returns An object containing the status and statusText if the status is between 400 and 599, otherwise undefined.
-   */
   const errorStatus = createMemo<
     Omit<RequestEvent["response"], "headers"> | undefined
   >(() => {
