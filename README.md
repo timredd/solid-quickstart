@@ -1,26 +1,43 @@
-# SolidStart
+# Solid(Start) Quickstart
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+Get up and running quickly with SolidStart.
+
+## Setup overview
+
+### Cloudflare
+
+This project is meant to be deployed using Cloudflare. If you don't have an account, you can create one.
+Connect your new project to your Cloudflare account using the following steps:
+
+- "Workers & Pages"
+- "Create"
+- "Pages"
+- "Connect to Git"
+
+### Turso
+
+This project uses Turso as a lightweight database. To get started, you'll need to create an account and a database.
+Once you've done that, you can connect your project to Turso using the following steps:
+
+- In Cloudflare, navigate to your new project.
+- "Integrations"
+- "Turso" -> "Add integration"
 
 ## Creating a project
 
 ```bash
-# create a new project in the current directory
-npm init solid@latest
-
-# create a new project in my-app
-npm init solid@latest my-app
+# Create a new project using this template.
+pnpm create solid@latest <APP_NAME> --template timredd/solid-quickstart
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Reference
 
 ```bash
-npm run dev
+# Install dependencies:
+pnpm install
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# Run dev server:
+pnpm run dev
 ```
 
 ## Building
