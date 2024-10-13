@@ -74,6 +74,7 @@ export function withId<Kind extends IdKind>(
 export function withTimestamps(options?: {
   createdAt?: boolean;
   updatedAt?: boolean;
+  deletedAt?: boolean;
 }) {
   const createdAt = integer("created_at", { mode: "timestamp" })
     .default(sql`(strftime('%s', 'now'))`)
@@ -84,13 +85,16 @@ export function withTimestamps(options?: {
     .$onUpdateFn(() => sql`(strftime('%s', 'now'))`)
     .notNull()
     .$type<Date>();
+  const deletedAt = integer("deleted_at", { mode: "timestamp" }).$type<Date>();
 
   const withCreatedAt = options?.createdAt ?? true;
   const withUpdatedAt = options?.updatedAt ?? true;
+  const withDeletedAt = options?.deletedAt ?? true;
 
   return {
     ...(withCreatedAt ? createdAt : {}),
     ...(withUpdatedAt ? updatedAt : {}),
+    ...(withDeletedAt ? deletedAt : {}),
   };
 }
 
