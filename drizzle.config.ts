@@ -1,13 +1,30 @@
-import type { Config } from "drizzle-kit";
+import { defineConfig } from "drizzle-kit";
 
-export default {
-  strict: true,
-  verbose: true,
-  out: "./migrations",
+function getCredentials(type?: "remote" | "in-memory" | "file") {
+  switch (type) {
+    case "remote":
+      return {
+        url: process.env.DATABASE_URL,
+        authToken: process.env.DATABASE_AUTH_TOKEN,
+      };
+    case "in-memory":
+      return {
+        url: ":memory:",
+      };
+    case "file":
+      return {
+        url: "file:sqlite.db",
+      };
+    default:
+      return {
+        url: process.env.DATABASE_URL,
+      };
+  }
+}
+
+export default defineConfig({
   dialect: "sqlite",
-  driver: "turso",
-  dbCredentials: {
-    url: process.env.DATABASE_URL || "http://127.0.0.1:8080",
-  },
-  schema: "./src/**/*.sql.ts",
-} satisfies Config;
+  schema: "src/db/schemas.sql.ts",
+  out: "drizzle/migrations",
+  ...getCredentials(),
+});
