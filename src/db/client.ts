@@ -1,26 +1,20 @@
-import type { Config } from "drizzle-kit";
+import { authSchema } from "@/schema/auth";
 import { drizzle } from "drizzle-orm/libsql/web";
 
-// Import all schema files here
-// import * as fooSchema from "@/server/foo/foo.sql";
+import type { Config } from "drizzle-kit";
 
-export const schema = {
-  // ...locationsSchema,
-};
-export type Schema = typeof schema;
-
-export const createDrizzleClient = (config?: Config) => {
-  const db = drizzle({
+export function createDrizzleClient(config?: Config) {
+  return drizzle({
     connection: {
       url: process.env.DATABASE_URL,
       authToken: process.env.DATABASE_AUTH_TOKEN,
       ...config,
     },
-    schema,
+    schema: {
+      ...authSchema,
+    },
   });
-
-  return db;
-};
+}
 
 export const db = createDrizzleClient();
 

@@ -1,6 +1,6 @@
 import { nanoid as nanoidFn } from "@/lib/nanoid";
-import { sql } from "drizzle-orm";
-import { integer, text } from "drizzle-orm/sqlite-core";
+import { type SQL, sql } from "drizzle-orm";
+import { type SQLiteColumn, integer, text } from "drizzle-orm/sqlite-core";
 
 export function now() {
   return sql`CURRENT_TIMESTAMP`;
@@ -8,6 +8,24 @@ export function now() {
 
 export function nil() {
   return sql`NULL`;
+}
+
+/**
+ * Returns a query that converts a date time column to an ISO format string.
+ * @param date The date time column to convert.
+ * @returns The query that converts the date time column to an ISO format string.
+ *
+ * @example
+ * ```ts
+ * query.returning({
+ *   createdAt: getISOFormatDateQuery(commentsTable.createdAt).as(
+ *     "created_at",
+ *   ),
+ * });
+ * ```
+ */
+export function getISOFormatDateQuery(date: SQLiteColumn): SQL<string> {
+  return sql<string>`to_char(${date}, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')`;
 }
 
 export const id = {
@@ -24,19 +42,19 @@ export const nanoid = {
 
 export const timestamps = {
   get createdAt() {
-    return integer("created_at", { mode: "timestamp" })
+    return integer({ mode: "timestamp" })
       .default(now())
       .notNull()
       .$type<Date>();
   },
   get updatedAt() {
-    return integer("updated_at", { mode: "timestamp" })
+    return integer({ mode: "timestamp" })
       .default(now())
       .$onUpdateFn(() => now())
       .notNull()
       .$type<Date>();
   },
   get deletedAt() {
-    return integer("deleted_at", { mode: "timestamp" }).$type<Date>();
+    return integer({ mode: "timestamp" }).$type<Date>();
   },
 };
