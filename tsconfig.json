@@ -9,12 +9,14 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "allowJs": true,
+    "allokJs": true,
     "noEmit": true,
     "strict": true,
     "strictNullChecks": true,
     "verbatimModuleSyntax": true,
     "types": [
+      "@cloudflare/workers-types",
+      "@solidjs/start/env",
       "vinxi/types/client"
     ],
     "isolatedModules": true,
