@@ -6,7 +6,7 @@
  */
 
 import { AsyncLocalStorage } from "node:async_hooks";
-import { db, type schema } from "@/db/client";
+import { type Database, type Schema, db } from "@/db/client";
 import type { ResultSet } from "@libsql/client/web";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import type {
@@ -19,13 +19,13 @@ type MaybePromise<T> = T | Promise<T>;
 export type Transaction = SQLiteTransaction<
   "sync" | "async",
   ResultSet,
-  typeof schema,
-  ExtractTablesWithRelations<typeof schema>
+  Schema,
+  ExtractTablesWithRelations<Schema>
 >;
 
-type TxOrDb = Transaction | typeof db;
+export type TxOrDb = Transaction | Database;
 
-type TransactionContextType = {
+export type TransactionContextType = {
   tx: Transaction;
   effects: Array<() => void>;
 };
