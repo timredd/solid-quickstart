@@ -1,7 +1,13 @@
-import { authSchema } from "@/schema/auth";
+import { authSchema } from "@/db/schemas/auth";
 import { drizzle } from "drizzle-orm/libsql/web";
 
 import type { Config } from "drizzle-kit";
+
+const schema = {
+  ...authSchema,
+};
+
+export type Schema = typeof schema;
 
 export function createDrizzleClient(config?: Config) {
   return drizzle({
@@ -10,9 +16,7 @@ export function createDrizzleClient(config?: Config) {
       authToken: process.env.DATABASE_AUTH_TOKEN,
       ...config,
     },
-    schema: {
-      ...authSchema,
-    },
+    schema,
   });
 }
 
