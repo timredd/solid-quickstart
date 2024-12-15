@@ -6,7 +6,7 @@ import type {
 } from "@cloudflare/workers-types";
 
 interface Env {
-  ENVIRONMENT: "dev";
+  ENVIRONMENT: "dev" | "prod";
   API_URL: "https://localhost:8787";
 }
 
