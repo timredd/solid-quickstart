@@ -33,15 +33,16 @@ export const LoginSchema = v.object({
   password: v.pipe(v.string(), v.minLength(3), v.maxLength(255)),
 });
 
-export const SortBySchema = v.picklist(["points", "recent"]);
-
 export const OrderBySchema = v.picklist(["asc", "desc"]);
 
+export const SortBySchema = v.picklist(["id", "created", "updated"]);
+
 export const PaginationSchema = v.object({
-  limit: v.pipe(v.unknown(), v.optional(v.number(), 10)),
-  page: v.pipe(v.unknown(), v.optional(v.number(), 1)),
-  sortBy: v.optional(SortBySchema, "points"),
-  orderBy: v.optional(OrderBySchema, "desc"),
-  author: v.optional(v.string()),
-  site: v.optional(v.string()),
+  page: v.optional(v.pipe(v.number(), v.minValue(1)), 1),
+  limit: v.optional(v.pipe(v.number(), v.minValue(1)), 10),
+  search: v.optional(v.string()),
+  order: v.optional(OrderBySchema, "asc"),
+  sort: v.optional(SortBySchema, "id"),
 });
+
+export type Pagination = v.InferInput<typeof PaginationSchema>;
