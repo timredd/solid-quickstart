@@ -14,7 +14,7 @@ export function id<TName extends string = "id">(name?: TName) {
 }
 
 export function nanoid<TName extends string = "nanoid">(name?: TName) {
-  return new SQLiteTextBuilder(name ?? "nanoid", "text")
+  return new SQLiteTextBuilder(name ?? "id", "text")
     .primaryKey()
     .$defaultFn(() => createNanoid())
     .$type<Nanoid>();
