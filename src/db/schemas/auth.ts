@@ -131,7 +131,7 @@ export const accountsTable = t.sqliteTable("accounts", {
   /** The scope of the account. Returned by the provider */
   scope: t.text(),
   /** The password of the account. Mainly used for email and password authentication */
-  password: t.text(),
+  passwordHash: t.text(),
   /** Timestamp of when the account was created */
   createdAt,
   /** Timestamp of when the account was updated */
@@ -148,12 +148,14 @@ export const accountsRelations = relations(accountsTable, ({ one }) => ({
 export const InsertAccountSchema = createInsertSchema(accountsTable);
 export const SelectAccountSchema = createSelectSchema(accountsTable, {
   id: NanoIdSchema,
+  accessToken: ({ accessToken }) => v.nullable(accessToken),
+  refreshToken: ({ refreshToken }) => v.nullable(refreshToken),
 });
 
 export type InsertAccount = v.InferInput<typeof InsertAccountSchema>;
 export type SelectAccount = v.InferInput<typeof SelectAccountSchema>;
 export type NewAccount = v.InferOutput<typeof InsertAccountSchema>;
-export type Account = v.InferOutput<typeof SelectAccountSchema>;
+export type Account = typeof accountsTable.$inferSelect;
 
 export const verificationsTable = t.sqliteTable("verifications", {
   /** Unique identifier for each verification */

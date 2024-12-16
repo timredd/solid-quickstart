@@ -8,6 +8,7 @@ import {
   usersTable,
 } from "@/db/schemas/auth";
 import type { TxOrDb } from "@/db/transact";
+import { hashPassword } from "@/lib/auth";
 import { type Pagination, PaginationSchema } from "@/shared/types";
 import { and, asc, desc, eq, like } from "drizzle-orm";
 import type { SQLiteColumn } from "drizzle-orm/sqlite-core";

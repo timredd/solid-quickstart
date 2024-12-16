@@ -33,8 +33,8 @@ export async function createSession(
     .insert(sessionsTable)
     .values({
       id: sessionId,
-      userId,
       token,
+      userId,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
     })
     .returning()

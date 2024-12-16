@@ -1,19 +1,20 @@
-import { auth } from "@/lib/auth";
+import {
+  createSession,
+  generateSessionToken,
+  validateSessionToken,
+} from "@/api/auth/session";
+import { getUserByEmail } from "@/api/auth/user";
+import { auth, verifyPassword } from "@/lib/auth";
+import { LoginSchema } from "@/shared/types";
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 
-import {
-  createSession,
-  generateSessionToken,
-  validateSessionToken,
-} from "@/api/auth/session";
-import { db } from "@/db/client";
 import type { Session, User } from "@/db/schemas/auth";
+import type { Transaction } from "@/db/transact";
 import type { Env } from "@/env";
-import { LoginSchema } from "@/shared/types";
 
 export const app = new Hono<{
   Bindings: Env;
@@ -22,6 +23,7 @@ export const app = new Hono<{
       user: User | null;
       session: Session | null;
     };
+    tx: Transaction;
   };
 }>()
   // Enable CORS for auth routes
@@ -70,11 +72,15 @@ export const app = new Hono<{
     }),
     async (c) => {
       const { username, password } = c.req.valid("json");
+      const user = await getUserByEmail(username);
+
+      verifyPassword(password, user.passwordHash);
+
       const token = generateSessionToken();
-      const session = createSession(token, userId);
+      const session = await createSession(token, user.id);
 
       if (c.env.ENVIRONMENT === "prod") {
-        setCookie(c, "auth_session", token, {});
+        setCookie(c, "auth_session", token, { expires: session.expiresAt });
       }
     },
   );
