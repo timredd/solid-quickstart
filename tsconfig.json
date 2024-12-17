@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "allokJs": true,
+    "allowJs": true,
     "noEmit": true,
     "strict": true,
     "strictNullChecks": true,
