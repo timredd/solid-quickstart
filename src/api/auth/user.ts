@@ -1,27 +1,23 @@
 import { db } from "@/db/client";
 import {
   type Account,
-  InsertUserSchema,
   type NewUser,
   type Session,
+  type UpdateUser,
   type User,
   accountsTable,
   sessionsTable,
   usersTable,
 } from "@/db/schemas/auth";
 import { type Pagination, PaginationSchema } from "@/shared/types";
-import { asc, desc, eq, like } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 
 import * as v from "valibot";
 
-import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
-
 export async function createUser(user: NewUser) {
-  const parsed = v.parse(InsertUserSchema, user);
-
   const createdUser = await db
     .insert(usersTable)
-    .values(parsed)
+    .values(user)
     .returning()
     .then((rows) => rows.at(0));
   if (!createdUser) {
@@ -31,13 +27,10 @@ export async function createUser(user: NewUser) {
   return createdUser;
 }
 
-export async function getUserById(id: string): Promise<User> {
+export async function getUserById(id: string): Promise<User | undefined> {
   const user = await db.query.users.findFirst({
     where: (t, { eq }) => eq(t.id, id),
   });
-  if (!user) {
-    throw new Error("User not found");
-  }
 
   return user;
 }
@@ -45,19 +38,19 @@ export async function getUserById(id: string): Promise<User> {
 export async function getUserByEmail(
   email: string,
   relations?: undefined,
-): Promise<User>;
+): Promise<User | undefined>;
 export async function getUserByEmail(
   email: string,
   relations?: {
     account: true;
   },
-): Promise<User & { account: Account }>;
+): Promise<(User & { account: Account }) | undefined>;
 export async function getUserByEmail(
   email: string,
   relations?: {
     session: true;
   },
-): Promise<User & { session: Session }>;
+): Promise<(User & { session: Session }) | undefined>;
 export async function getUserByEmail(
   email: string,
   relations?: {
@@ -76,31 +69,26 @@ export async function getUserByEmail(
     throw new Error("User not found");
   }
 
-  return user;
+  // Ensure that password hash is not returned
+  const { passwordHash: _, ...account } = user.account;
+  return { ...user, account: account };
 }
-
-const UpdateUserSchema = v.partial(InsertUserSchema);
 
 export async function updateUser(
   id: string,
-  data: v.InferOutput<typeof UpdateUserSchema>,
-) {
-  const parsedData = v.parse(UpdateUserSchema, data);
-
+  user: UpdateUser,
+): Promise<User | undefined> {
   const updatedUser = await db
     .update(usersTable)
-    .set(parsedData)
+    .set(user)
     .where(eq(usersTable.id, id))
     .returning()
     .then((rows) => rows.at(0));
-  if (!updatedUser) {
-    throw new Error("Failed to update user");
-  }
 
   return updatedUser;
 }
 
-export async function deleteUser(id: string) {
+export async function deleteUser(id: string): Promise<void> {
   await db.transaction(async (tx) => {
     // Delete user's sessions
     await tx.delete(sessionsTable).where(eq(sessionsTable.userId, id));
@@ -117,26 +105,19 @@ export async function listUsers(pagination?: Pagination) {
     pagination,
   );
 
-  function getSortField(sort: "id" | "created" | "updated"): SQLiteColumn {
-    switch (sort) {
-      case "created":
-        return usersTable.createdAt;
-      case "updated":
-        return usersTable.updatedAt;
-      default:
-        return usersTable.id;
-    }
+  let sortField = undefined;
+  if (sort === "created") {
+    sortField = usersTable.createdAt;
+  } else if (sort === "updated") {
+    sortField = usersTable.updatedAt;
   }
 
-  const orderFn = order === "asc" ? asc : desc;
-
-  return db
-    .select()
-    .from(usersTable)
-    .where(search ? like(usersTable.name, `%${search}%`) : undefined)
-    .orderBy(orderFn(getSortField(sort)))
-    .limit(limit)
-    .offset((page - 1) * limit);
+  return db.query.users.findMany({
+    where: (t, { like }) => (search ? like(t.name, `%${search}%`) : undefined),
+    orderBy: sortField && (order === "asc" ? asc(sortField) : desc(sortField)),
+    limit,
+    offset: (page - 1) * limit,
+  });
 }
 
 export async function verifyEmail(id: string): Promise<User | undefined> {

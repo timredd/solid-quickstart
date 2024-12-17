@@ -21,7 +21,7 @@ export async function checkEmailAvailability(email: string): Promise<boolean> {
     .where(eq(usersTable.email, email))
     .groupBy(usersTable.email)
     .having(({ emailsCount }) => gt(emailsCount, 1))
-    .then((rows) => rows.at(0));
+    .then((rows) => rows.at(0)?.emailsCount);
   if (!emailsCount) {
     return true;
   }

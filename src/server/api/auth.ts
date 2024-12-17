@@ -9,7 +9,7 @@ import { Hono } from "hono";
 import * as v from "valibot";
 
 import type { Context } from "@/server/router";
-import type { ErrorResponse, SuccessResponse } from "@/shared/types";
+import type { SuccessResponse } from "@/shared/types";
 import { HTTPException } from "hono/http-exception";
 
 export const authRouter = new Hono<Context>().get(

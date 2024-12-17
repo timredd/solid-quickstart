@@ -3,7 +3,7 @@ import * as v from "valibot";
 export const OrderBySchema = v.picklist(["asc", "desc"]);
 export type OrderBy = v.InferOutput<typeof OrderBySchema>;
 
-export const SortBySchema = v.picklist(["id", "created", "updated"]);
+export const SortBySchema = v.picklist(["id", "created", "updated", "deleted"]);
 export type SortBy = v.InferOutput<typeof SortBySchema>;
 
 export const createPageSchema = <T extends v.GenericSchema>(schema: T) =>

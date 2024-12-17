@@ -65,7 +65,7 @@ export const LoginSchema = v.variant("type", [
 
 export const OrderBySchema = v.picklist(["asc", "desc"]);
 
-export const SortBySchema = v.picklist(["id", "created", "updated"]);
+export const SortBySchema = v.picklist(["id", "created", "updated", "deleted"]);
 
 export const PaginationSchema = v.object({
   page: v.optional(v.pipe(v.number(), v.minValue(1)), 1),

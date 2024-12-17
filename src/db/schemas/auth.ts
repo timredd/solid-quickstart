@@ -1,9 +1,15 @@
 import { createdAt, updatedAt } from "@/lib/drizzle/columns";
-import { type ExtractTablesWithRelations, relations } from "drizzle-orm";
-import { createInsertSchema, createSelectSchema } from "drizzle-valibot";
+import { relations } from "drizzle-orm";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-valibot";
 
 import * as t from "@/lib/drizzle/table";
 import * as v from "valibot";
+
+import type { ExtractTablesWithRelations } from "drizzle-orm";
 
 export const usersTable = t.sqliteTable(
   "users",
@@ -63,10 +69,12 @@ export const InsertUserSchema = createInsertSchema(usersTable, {
     ),
 });
 export const SelectUserSchema = createSelectSchema(usersTable);
+export const UpdateUserSchema = createUpdateSchema(usersTable);
 export const UserIdSchema = v.pick(SelectUserSchema, ["id"]);
 
 export type NewUser = v.InferInput<typeof InsertUserSchema>;
 export type User = v.InferInput<typeof SelectUserSchema>;
+export type UpdateUser = v.InferInput<typeof UpdateUserSchema>;
 export type UserId = v.InferInput<typeof UserIdSchema>["id"];
 
 export const sessionsTable = t.sqliteTable("sessions", {
@@ -102,9 +110,13 @@ export const InsertSessionSchema = createInsertSchema(sessionsTable, {
   ipAddress: (schema) => v.pipe(schema, v.ipv4()),
 });
 export const SelectSessionSchema = createSelectSchema(sessionsTable);
+export const UpdateSessionSchema = createUpdateSchema(sessionsTable);
+export const SessionIdSchema = v.pick(SelectSessionSchema, ["id"]);
 
 export type NewSession = v.InferInput<typeof InsertSessionSchema>;
 export type Session = v.InferInput<typeof SelectSessionSchema>;
+export type UpdateSession = v.InferInput<typeof UpdateSessionSchema>;
+export type SessionId = v.InferInput<typeof SessionIdSchema>["id"];
 
 export const accountsTable = t.sqliteTable("accounts", {
   /** Unique identifier for each account */
@@ -153,10 +165,21 @@ export const InsertAccountSchema = createInsertSchema(accountsTable, {
       ),
     ),
 });
-export const SelectAccountSchema = createSelectSchema(accountsTable);
+export const SelectAccountSchema = createSelectSchema(accountsTable, {
+  passwordHash: v.nullish(v.never()),
+});
+export const SelectAccountWithPasswordSchema_DANGEROUS =
+  createSelectSchema(accountsTable);
+export const UpdateAccountSchema = createUpdateSchema(accountsTable);
+export const AccountIdSchema = v.pick(SelectAccountSchema, ["id"]);
 
 export type NewAccount = v.InferInput<typeof InsertAccountSchema>;
-export type Account = v.InferInput<typeof SelectAccountSchema>;
+export type Account = v.InferOutput<typeof SelectAccountSchema>;
+export type AccountWithPassword_DANGEROUS = v.InferInput<
+  typeof SelectAccountWithPasswordSchema_DANGEROUS
+>;
+export type UpdateAccount = v.InferInput<typeof UpdateAccountSchema>;
+export type AccountId = v.InferInput<typeof AccountIdSchema>["id"];
 
 export const verificationsTable = t.sqliteTable("verifications", {
   /** Unique identifier for each verification */
@@ -175,9 +198,13 @@ export const verificationsTable = t.sqliteTable("verifications", {
 
 export const InsertVerificationSchema = createInsertSchema(verificationsTable);
 export const SelectVerificationSchema = createSelectSchema(verificationsTable);
+export const UpdateVerificationSchema = createUpdateSchema(verificationsTable);
+export const VerificationIdSchema = v.pick(SelectVerificationSchema, ["id"]);
 
 export type NewVerification = v.InferInput<typeof InsertVerificationSchema>;
 export type Verification = v.InferInput<typeof SelectVerificationSchema>;
+export type UpdateVerification = v.InferInput<typeof UpdateVerificationSchema>;
+export type VerificationId = v.InferInput<typeof VerificationIdSchema>["id"];
 
 export const authSchema = {
   users: usersTable,
