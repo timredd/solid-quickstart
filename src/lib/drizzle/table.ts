@@ -7,33 +7,33 @@ import {
   SQLiteTimestampBuilder,
 } from "drizzle-orm/sqlite-core";
 
-export function id<TName extends string = "id">(name?: TName) {
-  return new SQLiteIntegerBuilder(name ?? "id")
+export function id(name = "id") {
+  return new SQLiteIntegerBuilder(name)
     .primaryKey({ autoIncrement: true })
     .$type<number>();
 }
 
-export function nanoid<TName extends string = "nanoid">(name?: TName) {
-  return new SQLiteTextBuilder(name ?? "id", "text")
+export function nanoid(name = "id") {
+  return new SQLiteTextBuilder(name, "text")
     .primaryKey()
     .$defaultFn(() => createNanoid())
     .$type<Nanoid>();
 }
 
-export function json<TName extends string>(name?: TName) {
-  return new SQLiteTextJsonBuilder(name ?? "").$type<Record<string, unknown>>();
+export function json(name = "") {
+  return new SQLiteTextJsonBuilder(name).$type<Record<string, unknown>>();
 }
 
-export function boolean<TName extends string>(name?: TName) {
-  return new SQLiteBooleanBuilder(name ?? "", "boolean").$type<boolean>();
+export function boolean(name = "") {
+  return new SQLiteBooleanBuilder(name, "boolean").$type<boolean>();
 }
 
-export function datetime<TName extends string>(name?: TName) {
-  return new SQLiteTimestampBuilder(name ?? "", "timestamp").$type<Date>();
+export function datetime(name = "") {
+  return new SQLiteTimestampBuilder(name, "timestamp").$type<Date>();
 }
 
-export function timestamp<TName extends string>(name?: TName) {
-  return new SQLiteTimestampBuilder(name ?? "", "timestamp_ms").$type<Date>();
+export function timestamp(name = "") {
+  return new SQLiteTimestampBuilder(name, "timestamp_ms").$type<Date>();
 }
 
 export * from "drizzle-orm/sqlite-core";

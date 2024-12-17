@@ -14,7 +14,7 @@ export const NOW = sql<Date>`strftime('%s', 'now')`;
  * @param column - The column to be converted to lowercase.
  * @returns A SQL fragment that converts the column to lowercase.
  */
-export function lower<TColumn extends AnySQLiteColumn>(column: TColumn) {
+export function lower(column: AnySQLiteColumn) {
   return sql`lower(${column})`;
 }
 
@@ -24,8 +24,26 @@ export function lower<TColumn extends AnySQLiteColumn>(column: TColumn) {
  * @param column - The column to be converted to uppercase.
  * @returns A SQL fragment that converts the column to uppercase.
  */
-export function upper<TColumn extends AnySQLiteColumn>(column: TColumn) {
+export function upper(column: AnySQLiteColumn) {
   return sql`upper(${column})`;
+}
+
+/**
+ * Returns a query that converts a date time column to an ISO format string.
+ * @param date The date time column to convert.
+ * @returns The query that converts the date time column to an ISO format string.
+ *
+ * @example
+ * ```ts
+ * query.returning({
+ *   createdAt: getISOFormatDateQuery(commentsTable.createdAt).as(
+ *     "created_at",
+ *   ),
+ * });
+ * ```
+ */
+export function getISOFormatDateQuery(date: AnySQLiteColumn) {
+  return sql<string>`to_char(${date}, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')`;
 }
 
 /**

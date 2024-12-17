@@ -1,23 +1,25 @@
 import { db } from "@/db/client";
 import {
-  type InsertUser,
+  type Account,
   InsertUserSchema,
+  type NewUser,
+  type Session,
   type User,
   accountsTable,
   sessionsTable,
   usersTable,
 } from "@/db/schemas/auth";
-import type { TxOrDb } from "@/db/transact";
-import { hashPassword } from "@/lib/auth";
 import { type Pagination, PaginationSchema } from "@/shared/types";
-import { and, asc, desc, eq, like } from "drizzle-orm";
-import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
+import { asc, desc, eq, like } from "drizzle-orm";
+
 import * as v from "valibot";
 
-export async function createUser(user: InsertUser, tx?: TxOrDb) {
+import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
+
+export async function createUser(user: NewUser) {
   const parsed = v.parse(InsertUserSchema, user);
 
-  const createdUser = await (tx || db)
+  const createdUser = await db
     .insert(usersTable)
     .values(parsed)
     .returning()
@@ -40,9 +42,35 @@ export async function getUserById(id: string): Promise<User> {
   return user;
 }
 
-export async function getUserByEmail(email: string): Promise<User> {
+export async function getUserByEmail(
+  email: string,
+  relations?: undefined,
+): Promise<User>;
+export async function getUserByEmail(
+  email: string,
+  relations?: {
+    account: true;
+  },
+): Promise<User & { account: Account }>;
+export async function getUserByEmail(
+  email: string,
+  relations?: {
+    session: true;
+  },
+): Promise<User & { session: Session }>;
+export async function getUserByEmail(
+  email: string,
+  relations?: {
+    account?: true;
+    session?: true;
+  },
+): Promise<User & { account: Account; session: Session }> {
   const user = await db.query.users.findFirst({
     where: (t, { eq }) => eq(t.email, email.toLowerCase()),
+    with: {
+      account: relations?.account,
+      session: relations?.session,
+    },
   });
   if (!user) {
     throw new Error("User not found");
@@ -100,30 +128,22 @@ export async function listUsers(pagination?: Pagination) {
     }
   }
 
-  const users = await db
+  const orderFn = order === "asc" ? asc : desc;
+
+  return db
     .select()
     .from(usersTable)
-    .where(and(search ? like(usersTable.name, `%${search}%`) : undefined))
-    .orderBy((order === "asc" ? asc : desc)(getSortField(sort)))
+    .where(search ? like(usersTable.name, `%${search}%`) : undefined)
+    .orderBy(orderFn(getSortField(sort)))
     .limit(limit)
     .offset((page - 1) * limit);
-  if (!users) {
-    throw new Error("Failed to list users");
-  }
-
-  return users;
 }
 
-export async function verifyEmail(id: string) {
-  const updatedUser = await db
+export async function verifyEmail(id: string): Promise<User | undefined> {
+  return db
     .update(usersTable)
     .set({ emailVerified: true })
     .where(eq(usersTable.id, id))
     .returning()
     .then((rows) => rows.at(0));
-  if (!updatedUser) {
-    throw new Error("Failed to verify email");
-  }
-
-  return updatedUser;
 }

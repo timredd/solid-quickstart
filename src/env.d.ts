@@ -8,6 +8,9 @@ import type {
 interface Env {
   ENVIRONMENT: "dev" | "prod";
   API_URL: "https://localhost:8787";
+  CORS_ORIGIN: "https://localhost:3000";
+  DATABASE_URL: string;
+  DATABASE_AUTH_TOKEN: string;
 }
 
 declare module "vinxi/http" {

@@ -1,6 +1,10 @@
 import * as v from "valibot";
 
-import type { InsertUserSchema, SelectUserSchema } from "@/db/schemas/auth";
+import {
+  InsertAccountSchema,
+  type InsertUserSchema,
+  type SelectUserSchema,
+} from "@/db/schemas/auth";
 
 export type NewUser = v.InferOutput<typeof InsertUserSchema>;
 export type User = v.InferOutput<typeof SelectUserSchema>;
@@ -23,15 +27,41 @@ export type PaginatedResponse<T> = SuccessResponse<T> & {
   };
 };
 
-export const LoginSchema = v.object({
-  username: v.pipe(
-    v.string(),
-    v.minLength(3),
-    v.maxLength(31),
-    v.regex(/^[a-zA-Z0-9_]+$/),
+export const UsernameSchema = v.pipe(
+  v.string(),
+  v.minLength(3, "Username must be at least 3 characters"),
+  v.maxLength(31, "Username must be at most 31 characters"),
+  v.regex(
+    /^[a-zA-Z0-9_]+$/,
+    "Username must only contain letters, numbers, and underscores",
   ),
-  password: v.pipe(v.string(), v.minLength(3), v.maxLength(255)),
+);
+
+export const EmailSchema = v.pipe(v.string(), v.email("Invalid email"));
+
+export const PasswordSchema = v.pick(InsertAccountSchema, ["passwordHash"])
+  .entries.passwordHash;
+
+export const UsernameLoginSchema = v.object({
+  username: UsernameSchema,
+  password: PasswordSchema,
 });
+
+export const EmailLoginSchema = v.object({
+  email: EmailSchema,
+  password: PasswordSchema,
+});
+
+export const LoginSchema = v.variant("type", [
+  v.object({
+    type: v.literal("username"),
+    username: UsernameLoginSchema,
+  }),
+  v.object({
+    type: v.literal("email"),
+    email: EmailLoginSchema,
+  }),
+]);
 
 export const OrderBySchema = v.picklist(["asc", "desc"]);
 

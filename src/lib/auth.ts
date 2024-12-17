@@ -1,12 +1,3 @@
-import { adapter } from "@/db/adapter";
-import { betterAuth } from "better-auth";
-
-export const auth = betterAuth({
-  database: adapter,
-});
-
-export type Session = typeof auth.$Infer.Session;
-
 /**
  * Hashes a string using PBKDF2 with 100,000 iterations and SHA-256.
  *

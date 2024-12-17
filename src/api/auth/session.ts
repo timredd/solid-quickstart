@@ -23,9 +23,14 @@ export function generateSessionToken(): string {
   return token;
 }
 
+const DAYS_IN_MS = 1000 * 60 * 60 * 24;
+const THIRTY_DAYS_IN_MS = 30 * DAYS_IN_MS;
+const FIFTEEN_DAYS_IN_MS = 15 * DAYS_IN_MS;
+
 export async function createSession(
   token: string,
   userId: string,
+  options?: { expiresAt?: Date },
 ): Promise<Session> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
@@ -35,7 +40,7 @@ export async function createSession(
       id: sessionId,
       token,
       userId,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      expiresAt: options?.expiresAt ?? new Date(Date.now() + 30 * DAYS_IN_MS),
     })
     .returning()
     .then((rows) => rows.at(0));
@@ -61,12 +66,13 @@ export async function validateSessionToken(
   }
   const { user, session } = result;
 
-  if (Date.now() >= session.expiresAt.getTime()) {
+  const isExpired = Date.now() >= session.expiresAt.getTime();
+  if (isExpired) {
     await db.delete(sessionsTable).where(eq(sessionsTable.id, session.id));
     return { session: null, user: null };
   }
-  if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
-    session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+  if (Date.now() >= session.expiresAt.getTime() - FIFTEEN_DAYS_IN_MS) {
+    session.expiresAt = new Date(Date.now() + THIRTY_DAYS_IN_MS);
     await db
       .update(sessionsTable)
       .set({ expiresAt: session.expiresAt })

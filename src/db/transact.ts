@@ -5,16 +5,16 @@
  * https://github.com/jacobburgess/sst-tanstack
  */
 
-import { AsyncLocalStorage } from "node:async_hooks";
 import { type Database, type Schema, db } from "@/db/client";
+import type { Context } from "@/server/router";
 import type { ResultSet } from "@libsql/client/web";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import type {
   SQLiteTransaction,
   SQLiteTransactionConfig,
 } from "drizzle-orm/sqlite-core";
-
-type MaybePromise<T> = T | Promise<T>;
+import type { Context as HonoContext } from "hono";
+import { getContext } from "hono/context-storage";
 
 export type Transaction = SQLiteTransaction<
   "sync" | "async",
@@ -30,59 +30,39 @@ export type TransactionContextType = {
   effects: Array<() => void>;
 };
 
-export function createContext<T>() {
-  const storage = new AsyncLocalStorage<T>();
-
-  return {
-    use() {
-      const result = storage.getStore();
-      if (!result) {
-        throw new Error("No context available");
-      }
-      return result;
-    },
-    with<R>(value: T, fn: () => R) {
-      return storage.run<R>(value, fn);
-    },
-  };
+export async function createTx<T>(
+  c: HonoContext,
+  callback: (tx: Transaction) => Promise<T>,
+  config: SQLiteTransactionConfig = { behavior: "deferred" },
+): Promise<T> {
+  try {
+    const context = getContext<Context>();
+    return callback(context.var.transact.tx);
+  } catch {
+    const effects: Array<() => void> = [];
+    const result = await db.transaction(async (tx) => {
+      c.set("transact", { tx, effects });
+      return callback(tx);
+    }, config);
+    await Promise.all(effects.map((x) => x()));
+    return result as T;
+  }
 }
 
-const TransactionContext = createContext<TransactionContextType>();
-
-export async function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
+export async function useTx<T>(callback: (trx: TxOrDb) => Promise<T>) {
   try {
-    const context = TransactionContext.use();
-    return callback(context.tx);
+    const context = getContext<Context>();
+    return callback(context.var.transact.tx);
   } catch {
     return callback(db);
   }
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Required
-export async function afterTx(effect: () => MaybePromise<any>) {
+export async function afterTx<T>(effect: () => Promise<T>) {
   try {
-    const context = TransactionContext.use();
-    context.effects.push(effect);
+    const context = getContext<Context>();
+    context.var.transact.effects.push(effect);
   } catch {
     await effect();
-  }
-}
-
-export async function createTransaction<T>(
-  callback: (tx: Transaction) => Promise<T>,
-  behavior: SQLiteTransactionConfig["behavior"] = "deferred",
-): Promise<T> {
-  try {
-    const context = TransactionContext.use();
-    return callback(context.tx);
-  } catch {
-    const effects: Array<() => void> = [];
-    const result = await db.transaction(
-      async (tx) =>
-        TransactionContext.with({ tx, effects }, () => callback(tx)),
-      { behavior: behavior },
-    );
-    await Promise.all(effects.map((x) => x()));
-    return result as T;
   }
 }
