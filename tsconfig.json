@@ -17,7 +17,9 @@
     "types": [
       "@cloudflare/workers-types",
       "@solidjs/start/env",
-      "vinxi/types/client"
+      "@testing-library/jest-dom",
+      "vinxi/types/client",
+      "vitest/importMeta"
     ],
     "isolatedModules": true,
     "paths": {

@@ -13,7 +13,6 @@ export default defineConfig({
     preset: "cloudflare-pages",
     sourceMap: true,
     minify: false,
-
     rollupConfig: {
       external: ["__STATIC_CONTENT_MANIFEST", "node:async_hooks"],
     },
