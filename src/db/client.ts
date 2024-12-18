@@ -1,18 +1,9 @@
-import { authSchema } from "@/db/schemas/auth";
+import { schema } from "@/db/schema";
 import { drizzle } from "drizzle-orm/libsql/web";
 
+import type { Schema } from "@/db/schema";
 import type { Config } from "@libsql/client/web";
-import type {
-  ExtractTableRelationsFromSchema,
-  ExtractTablesWithRelations,
-} from "drizzle-orm";
-
-const schema = {
-  ...authSchema,
-};
-
-export type Schema = typeof schema;
-export type SchemaWithRelations = ExtractTablesWithRelations<Schema>;
+import type { ExtractTableRelationsFromSchema } from "drizzle-orm";
 
 export type ExtractRelations<TTableName extends string> = Record<
   keyof ExtractTableRelationsFromSchema<Schema, TTableName>,

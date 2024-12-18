@@ -1,7 +1,7 @@
 import { getUserAccount } from "@/api/auth/account";
 import { createSession, generateSessionToken } from "@/api/auth/session";
 import { getUserByEmail } from "@/api/auth/user";
-import { InsertAccountSchema, InsertUserSchema } from "@/db/schemas/auth";
+import { InsertAccountSchema, InsertUserSchema } from "@/db/schema/auth";
 import { verifyPassword } from "@/lib/auth";
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";

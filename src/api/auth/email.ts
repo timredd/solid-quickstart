@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { usersTable } from "@/db/schemas/auth";
+import { usersTable } from "@/db/schema/auth";
 import { EmailSchema } from "@/shared/types";
 import { count, eq, gt } from "drizzle-orm";
 
@@ -15,15 +15,16 @@ export function verifyEmailInput(email: string): boolean {
 }
 
 export async function checkEmailAvailability(email: string): Promise<boolean> {
-  const emailsCount = await db
-    .select({ emailsCount: count(usersTable.email) })
+  const emails = await db
+    .select({ count: count(usersTable.email) })
     .from(usersTable)
     .where(eq(usersTable.email, email))
     .groupBy(usersTable.email)
-    .having(({ emailsCount }) => gt(emailsCount, 1))
-    .then((rows) => rows.at(0)?.emailsCount);
-  if (!emailsCount) {
-    return true;
+    .having(({ count }) => gt(count, 1))
+    .then((rows) => rows.at(0));
+  if (!emails || emails?.count > 0) {
+    return false;
   }
-  return false;
+
+  return true;
 }

@@ -7,7 +7,7 @@ import { contextStorage } from "hono/context-storage";
 import { csrf } from "hono/csrf";
 
 import type { Database } from "@/db/client";
-import type { Session, User } from "@/db/schemas/auth";
+import type { Session, User } from "@/db/schema/auth";
 import type { Transaction } from "@/db/transact";
 import type { Env } from "@/env";
 import type { Context as HonoContext } from "hono";

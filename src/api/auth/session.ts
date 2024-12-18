@@ -4,7 +4,7 @@ import {
   type User,
   sessionsTable,
   usersTable,
-} from "@/db/schemas/auth";
+} from "@/db/schema/auth";
 import { sha256 } from "@oslojs/crypto/sha2";
 import {
   encodeBase32LowerCaseNoPadding,

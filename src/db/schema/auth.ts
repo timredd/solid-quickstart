@@ -9,6 +9,7 @@ import {
 import * as t from "@/lib/drizzle/table";
 import * as v from "valibot";
 
+import { EmailSchema, UsernameSchema } from "@/shared/types";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 
 export const usersTable = t.sqliteTable(
@@ -23,7 +24,7 @@ export const usersTable = t.sqliteTable(
     /** User's username for communication and login */
     username: t.text(),
     /** Whether the user's email is verified */
-    emailVerified: t.boolean().notNull(),
+    emailVerified: t.boolean().notNull().default(false),
     /** User's image url */
     image: t.text(),
     /** Timestamp of when the user account was created */
@@ -49,24 +50,8 @@ export const usersRelations = relations(usersTable, ({ one }) => ({
 }));
 
 export const InsertUserSchema = createInsertSchema(usersTable, {
-  email: (schema) =>
-    v.pipe(
-      schema,
-      v.transform((input) => input.toLowerCase()),
-      v.email("Invalid email"),
-    ),
-  emailVerified: (schema) => v.fallback(schema, false),
-  image: (schema) => v.nullish(schema),
-  username: (schema) =>
-    v.pipe(
-      schema,
-      v.minLength(3, "Username must be at least 3 characters"),
-      v.maxLength(31, "Username must be at most 31 characters"),
-      v.regex(
-        /^[a-zA-Z0-9_]+$/,
-        "Username must only contain letters, numbers, and underscores",
-      ),
-    ),
+  email: EmailSchema,
+  username: v.optional(UsernameSchema),
 });
 export const SelectUserSchema = createSelectSchema(usersTable);
 export const UpdateUserSchema = createUpdateSchema(usersTable);

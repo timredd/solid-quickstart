@@ -1,8 +1,9 @@
 import { db } from "@/db/client";
-import type { Account } from "@/db/schemas/auth";
+import type { Account } from "@/db/schema/auth";
 
 export async function getUserAccount(userId: string): Promise<Account> {
   const account = await db.query.accounts.findFirst({
+    columns: { passwordHash: false },
     where: (t, { and, eq }) =>
       and(eq(t.userId, userId), eq(t.providerId, "credential")),
   });
@@ -15,6 +16,7 @@ export async function getUserAccount(userId: string): Promise<Account> {
 
 export async function getUserAccounts(userId: string): Promise<Account[]> {
   const accounts = await db.query.accounts.findMany({
+    columns: { passwordHash: false },
     where: (t, { eq }) => eq(t.userId, userId),
   });
   if (!accounts) {

@@ -8,7 +8,8 @@ import {
   accountsTable,
   sessionsTable,
   usersTable,
-} from "@/db/schemas/auth";
+} from "@/db/schema/auth";
+import { createTestDatabase } from "@/db/seed";
 import { type Pagination, PaginationSchema } from "@/shared/types";
 import { asc, desc, eq } from "drizzle-orm";
 
@@ -127,4 +128,34 @@ export async function verifyEmail(id: string): Promise<User | undefined> {
     .where(eq(usersTable.id, id))
     .returning()
     .then((rows) => rows.at(0));
+}
+
+if (import.meta.vitest) {
+  const { beforeEach, describe, test, expect } = import.meta.vitest;
+
+  beforeEach(async () => {
+    const { seed } = createTestDatabase();
+
+    await seed().refine((f) => ({
+      usersTable: {
+        columns: {
+          name: f.fullName(),
+          email: f.email(),
+        },
+        count: 20,
+      },
+    }));
+  });
+
+  describe("create user", () => {
+    test("creates a new user", async () => {
+      const user = await createUser({
+        name: "Test User",
+        email: "testuser@fakedomain.com",
+      });
+
+      expect(user.name).toBe("Test User");
+      expect(user.email).toBe("testuser@fakedomain.com");
+    });
+  });
 }

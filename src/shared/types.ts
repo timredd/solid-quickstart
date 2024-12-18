@@ -1,13 +1,6 @@
 import * as v from "valibot";
 
-import {
-  InsertAccountSchema,
-  type InsertUserSchema,
-  type SelectUserSchema,
-} from "@/db/schemas/auth";
-
-export type NewUser = v.InferOutput<typeof InsertUserSchema>;
-export type User = v.InferOutput<typeof SelectUserSchema>;
+import { InsertAccountSchema } from "@/db/schema/auth";
 
 export type SuccessResponse<T = void> = {
   success: true;
@@ -37,19 +30,20 @@ export const UsernameSchema = v.pipe(
   ),
 );
 
-export const EmailSchema = v.pipe(v.string(), v.email("Invalid email"));
-
-export const PasswordSchema = v.pick(InsertAccountSchema, ["passwordHash"])
-  .entries.passwordHash;
+export const EmailSchema = v.pipe(
+  v.string(),
+  v.transform((email) => email.toLowerCase()),
+  v.email("Invalid email"),
+);
 
 export const UsernameLoginSchema = v.object({
   username: UsernameSchema,
-  password: PasswordSchema,
+  password: InsertAccountSchema.entries.passwordHash,
 });
 
 export const EmailLoginSchema = v.object({
   email: EmailSchema,
-  password: PasswordSchema,
+  password: InsertAccountSchema.entries.passwordHash,
 });
 
 export const LoginSchema = v.variant("type", [
@@ -64,8 +58,10 @@ export const LoginSchema = v.variant("type", [
 ]);
 
 export const OrderBySchema = v.picklist(["asc", "desc"]);
+export type OrderBy = v.InferOutput<typeof OrderBySchema>;
 
 export const SortBySchema = v.picklist(["id", "created", "updated", "deleted"]);
+export type SortBy = v.InferOutput<typeof SortBySchema>;
 
 export const PaginationSchema = v.object({
   page: v.optional(v.pipe(v.number(), v.minValue(1)), 1),
