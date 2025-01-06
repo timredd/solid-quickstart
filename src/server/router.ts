@@ -5,13 +5,14 @@ import { Hono } from "hono";
 import { cache } from "hono/cache";
 import { contextStorage } from "hono/context-storage";
 import { csrf } from "hono/csrf";
+import { authRouter } from "./api/auth";
+import { openApi, scalar } from "./middleware/openapi";
 
 import type { Database } from "@/db/client";
 import type { Session, User } from "@/db/schema/auth";
 import type { Transaction } from "@/db/transact";
 import type { Env } from "@/env";
 import type { Context as HonoContext } from "hono";
-import { authRouter } from "./api/auth";
 
 export interface Context extends HonoContext {
   Bindings: Env;
@@ -28,21 +29,29 @@ export interface Context extends HonoContext {
   };
 }
 
-const MIN_IN_SEC = 60;
-
-export const app = new Hono<Context>()
+const app = new Hono<Context>()
   .basePath("/api")
   .use(contextStorage())
-  .use("/auth/**", cors())
   .use(csrf())
+  .use("/auth/**", cors())
   // Custom middleware
   .use(database())
   .use(session())
+  // Cache controls
   .get(
     "*",
     cache({
       cacheName: "app-cookie",
-      cacheControl: `max-age=${60 * MIN_IN_SEC}`,
+      cacheControl: `max-age=${60 * 60}`,
     }),
   )
   .route("/auth/**", authRouter);
+
+// Needs to be separate to avoid circular type
+app
+  // OpenAPI specification
+  .get("/openapi", openApi)
+  // OpenAPI UI
+  .get("/docs", scalar);
+
+export { app };
