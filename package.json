@@ -1,5 +1,5 @@
 {
-  "name": "<APP_NAME>",
+  "name": "solid-quickstart",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
