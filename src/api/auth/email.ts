@@ -25,6 +25,5 @@ export async function checkEmailAvailability(email: string): Promise<boolean> {
   if (!emails || emails?.count > 0) {
     return false;
   }
-
   return true;
 }
