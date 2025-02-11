@@ -19,29 +19,29 @@ const PrivateConfigSchema = v.objectWithRest(
 );
 
 try {
-  v.parse(PrivateConfigSchema, import.meta.env);
+  parse(PrivateConfigSchema, import.meta.env);
 } catch (e) {
   try {
     console.log(
-      "Parsing private config using `import.meta.env` failed, trying `process.env`",
+      "Parsing server-only env using `import.meta.env` failed, trying `process.env`",
     );
-    v.parse(PrivateConfigSchema, process.env);
+    parse(PrivateConfigSchema, process.env);
   } catch (e) {
     console.log(
-      "Parsing private config using `process.env` failed, exiting...",
+      "Parsing server-only env using `process.env` failed, exiting...",
     );
     console.error(e);
   }
 } finally {
-  console.log("Successfully parsed private config");
+  console.log("Successfully parsed server-only env");
 }
 
-export type PrivateConfig = v.InferOutput<typeof PrivateConfigSchema>;
+export type PrivateEnv = v.InferOutput<typeof PrivateConfigSchema>;
 
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends PrivateConfig {}
+    interface ProcessEnv extends PrivateEnv {}
   }
 
-  interface ImportMetaEnv extends PrivateConfig {}
+  interface ImportMetaEnv extends PrivateEnv {}
 }
