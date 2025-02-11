@@ -52,5 +52,22 @@
       "allowComments": true,
       "allowTrailingCommas": false
     }
-  }
+  },
+  "overrides": [
+    {
+      "include": [
+        "src/lib/**"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          },
+          "complexity": {
+            "noBannedTypes": "off"
+          }
+        }
+      }
+    }
+  ]
 }
