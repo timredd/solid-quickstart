@@ -29,6 +29,16 @@ export function upper(column: AnySQLiteColumn) {
 }
 
 /**
+ * Generates a SQL fragment that references a column in the excluded table.
+ *
+ * @param column - The column to reference.
+ * @returns A SQL fragment that references the column in the excluded table.
+ */
+export function excluded(column: AnySQLiteColumn) {
+  return sql.raw(`excluded.${column.name}`);
+}
+
+/**
  * Returns a query that converts a date time column to an ISO format string.
  * @param date The date time column to convert.
  * @returns The query that converts the date time column to an ISO format string.
