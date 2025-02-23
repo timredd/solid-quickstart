@@ -1,4 +1,4 @@
-name = "<APP_NAME>"
+name = "solid-quickstart"
 main = "./dist/_worker.js/index.js"
 compatibility_date = "2024-10-06"
 compatibility_flags = [
@@ -10,8 +10,4 @@ minify = false
 
 [vars]
 ENVIRONMENT = "dev"
-
-[observability]
-# See https://developers.cloudflare.com/workers/wrangler/configuration/#observability
-enabled = false
-head_sampling_rate = 0.1 # 10% of requests are logged
+API_URL = "https://localhost:8787"

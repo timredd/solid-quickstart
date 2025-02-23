@@ -12,9 +12,7 @@
       }
     },
     "ignore": [
-      "node_modules",
-      // TODO: remove when https://github.com/drizzle-team/drizzle-orm/pull/2860 is merged
-      "drizzle-valibot.ts"
+      "node_modules"
     ]
   },
   "formatter": {
@@ -54,5 +52,22 @@
       "allowComments": true,
       "allowTrailingCommas": false
     }
-  }
+  },
+  "overrides": [
+    {
+      "include": [
+        "src/lib/**"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          },
+          "complexity": {
+            "noBannedTypes": "off"
+          }
+        }
+      }
+    }
+  ]
 }

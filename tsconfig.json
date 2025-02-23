@@ -15,7 +15,11 @@
     "strictNullChecks": true,
     "verbatimModuleSyntax": true,
     "types": [
-      "vinxi/types/client"
+      "@cloudflare/workers-types",
+      "@solidjs/start/env",
+      "@testing-library/jest-dom",
+      "vinxi/types/client",
+      "vitest/importMeta"
     ],
     "isolatedModules": true,
     "paths": {
