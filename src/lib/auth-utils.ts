@@ -1,6 +1,3 @@
-import { sha256 } from "@oslojs/crypto/sha2";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-
 /**
  * Hashes a string using PBKDF2 with 100,000 iterations and SHA-256.
  *
@@ -63,34 +60,6 @@ export async function verifyPassword(
   } catch (e) {
     throw new Error("Failed to hash password attempt");
   }
-}
-
-/**
- * Verifies the strength of a password.
- * @param password - The password to verify.
- * @returns Whether the password is strong enough.
- */
-export async function verifyPasswordStrength(
-  password: string,
-): Promise<boolean> {
-  if (password.length < 8 || password.length > 255) {
-    return false;
-  }
-
-  const hash = encodeHexLowerCase(sha256(new TextEncoder().encode(password)));
-  const prefix = hash.slice(0, 5);
-
-  const resp = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
-
-  const items = await resp.text().then((data) => data.split("\n"));
-  for (const item of items) {
-    const suffix = item.slice(0, 35).toLowerCase();
-    if (hash === prefix + suffix) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 const Hex = {

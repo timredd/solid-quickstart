@@ -5,7 +5,8 @@
  * https://github.com/jacobburgess/sst-tanstack
  */
 
-import { type Database, type Schema, db } from "@/db/client";
+import { type Database, db } from "@/database/client";
+import type { Schema } from "@/database/schema";
 import type { Context } from "@/server/router";
 import type { ResultSet } from "@libsql/client/web";
 import type { ExtractTablesWithRelations } from "drizzle-orm";

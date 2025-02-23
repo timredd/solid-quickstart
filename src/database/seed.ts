@@ -1,4 +1,4 @@
-import { schema } from "@/db/schema";
+import { schema } from "@/database/schema";
 import { drizzle } from "drizzle-orm/libsql/web";
 import { reset as drizzleReset, seed as drizzleSeed } from "drizzle-seed";
 

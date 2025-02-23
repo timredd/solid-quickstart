@@ -11,9 +11,3 @@ export const updatedAt = integer({ mode: "timestamp" })
   .notNull();
 
 export const deletedAt = integer({ mode: "timestamp" });
-
-export const timestamps = {
-  createdAt,
-  updatedAt,
-  deletedAt,
-};

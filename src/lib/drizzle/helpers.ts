@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
+import type { AnySQLiteColumn, SQLiteSelect } from "drizzle-orm/sqlite-core";
 
 export type Tuple<T extends string = string> = readonly [T, ...T[]];
 
@@ -68,4 +68,22 @@ export function enumerate<V extends string>(shape: Record<string, V>): Tuple<V>;
 export function enumerate(shape: Array<string> | Record<string, string>) {
   const array = Array.isArray(shape) ? shape : Object.values(shape);
   return array as [string, ...string[]];
+}
+
+/**
+ * Adds pagination to a query.
+ * Requires the query to be in `$dynamic` mode.
+
+ * @param qb Query builder query to paginate.
+ * @param page Page number to fetch.
+ * @param opts Pagination options.
+ * @returns Query with pagination applied.
+ */
+export function withPagination<T extends SQLiteSelect>(
+  qb: T,
+  page: number,
+  opts: { size?: number },
+) {
+  const { size = 20 } = opts;
+  return qb.limit(page).offset(page * size);
 }

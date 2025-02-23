@@ -8,9 +8,9 @@ import { csrf } from "hono/csrf";
 import { authRouter } from "./api/auth";
 import { openApi, scalar } from "./middleware/openapi";
 
-import type { Database } from "@/db/client";
-import type { Session, User } from "@/db/schema/auth";
-import type { Transaction } from "@/db/transact";
+import type { Database } from "@/database/client";
+import type { Session, User } from "@/database/schema/auth";
+import type { Transaction } from "@/database/transact";
 import type { Env } from "@/env";
 import type { Context as HonoContext } from "hono";
 
