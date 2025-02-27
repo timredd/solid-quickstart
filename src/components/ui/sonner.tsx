@@ -1,18 +1,20 @@
-import { useColorMode } from "@kobalte/core/color-mode";
-import Sonner from "solid-sonner";
+import { useTheme } from "@/components/core/theme";
+import {
+  Toaster as Sonner,
+  type ToastT as ToasterProps,
+  toast as sonner,
+} from "solid-sonner";
 
-export const toast = Sonner.toast;
+export const toast = sonner;
 
-export type ToasterProps = Sonner.ToastT;
-
-export const Toaster = (props: ToasterProps) => {
-  const context = useColorMode();
+export const Toaster = (props?: Partial<ToasterProps>) => {
+  const { theme } = useTheme();
 
   return (
-    <Sonner.Toaster
-      theme={context.colorMode()}
+    <Sonner
+      theme={theme()}
       position="top-right"
-      duration={5000}
+      duration={3500}
       richColors={true}
       class="toaster group"
       toastOptions={{
